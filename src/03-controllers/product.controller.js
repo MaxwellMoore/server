@@ -4,6 +4,7 @@ const {
   getProduct,
   updateProduct,
   deleteProduct,
+  getAllProducts,
 } = require("../04-services/product.service");
 
 const createProductHandler = async (req, res) => {
@@ -34,6 +35,22 @@ const getProductHandler = async (req, res) => {
     }
 
     res.status(200).send(product);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const getAllProductsHandler = async (req, res) => {
+  const userId = res.locals.user.user_id;
+
+  try {
+    const products = await getAllProducts({ user_id: userId });
+
+    if (!products) {
+      res.status(404).send({ error: "Product not found" });
+    }
+
+    res.status(200).send(products);
   } catch (error) {
     logger.error(error);
   }
@@ -91,6 +108,7 @@ const deleteProductHandler = async (req, res) => {
 
 module.exports = {
   createProductHandler,
+  getAllProductsHandler,
   getProductHandler,
   updateProductHandler,
   deleteProductHandler,

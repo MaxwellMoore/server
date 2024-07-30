@@ -7,6 +7,7 @@ const {
   getProductHandler,
   updateProductHandler,
   deleteProductHandler,
+  getAllProductsHandler,
 } = require("./03-controllers/product.controller");
 const {
   createSessionHandler,
@@ -56,7 +57,7 @@ const routes = (app) => {
     validateResource(createProductSchema),
     createProductHandler
   );
-  app.get("/api/products");
+  app.get("/api/products", requireUser, getAllProductsHandler);
   app.get(
     "/api/products/:productId",
     requireUser,

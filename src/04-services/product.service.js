@@ -12,6 +12,12 @@ const getProduct = async (queryCondition) => {
   });
 };
 
+const getAllProducts = async (queryCondition) => {
+  return Product.findAll({
+    where: queryCondition,
+  });
+};
+
 const updateProduct = async (queryCondition, update) => {
   return Product.update(update, {
     where: queryCondition,
@@ -27,6 +33,7 @@ const deleteProduct = async (queryCondition) => {
 module.exports = {
   createProduct,
   getProduct,
+  getAllProducts,
   updateProduct,
   deleteProduct,
 };
