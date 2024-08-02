@@ -43,6 +43,12 @@ const updateProductSchema = Joi.object({
     status: Joi.string().required().messages({
       "any.required": "Status is required",
     }),
+    updatedAt: Joi.date().required().messages({
+      "any.required": "updatedAt is required",
+    }),
+    createdAt: Joi.date().required().messages({
+      "any.required": "createdAt is required",
+    }),
   }),
   query: Joi.object().optional(),
   params: Joi.object({
