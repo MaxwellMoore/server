@@ -35,10 +35,15 @@ const routes = (app) => {
   });
 
   // User routes
-  app.post("/api/users", validateResource(createUserSchema), createUserHandler);
+  app.post(
+    "/api/register",
+    validateResource(createUserSchema),
+    createUserHandler
+  );
+  app.post("/api/login", validateResource(getUserSchema), getUserHandler);
   app.get("/api/me", requireUser, getCurrentUserHandler);
   app.get("/googleRedirectUri", googleOauthHandler);
-  app.get("/api/users", validateResource(getUserSchema), getUserHandler);
+
   app.delete("/api/users");
 
   // Session routes

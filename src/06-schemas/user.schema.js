@@ -28,6 +28,13 @@ const createUserSchema = Joi.object({
       "string.min": "Password must be more than 5 chars",
       "any.required": "Password is required",
     }),
+    passwordConfirmation: Joi.string()
+      .valid(Joi.ref("password"))
+      .required()
+      .messages({
+        "any.only": "Passwords must match",
+        "any.required": "Password confirmation is required",
+      }),
   }),
   query: Joi.object().optional(),
   params: Joi.object().optional(),
