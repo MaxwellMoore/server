@@ -57,6 +57,18 @@ const getAllProducts = async (queryCondition) => {
     };
   }
 
+  // Handle wildcard matching
+  if (otherConditions.title) {
+    whereCondition.title = {
+      [Op.like]: `%${otherConditions.title}%`,
+    };
+  }
+  if (otherConditions.company) {
+    whereCondition.company = {
+      [Op.like]: `%${otherConditions.company}%`,
+    };
+  }
+
   // Handle sorting
   const order = [];
   if (sortBy) {
