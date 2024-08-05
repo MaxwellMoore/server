@@ -44,7 +44,11 @@ const getAllProductsHandler = async (req, res) => {
   const userId = res.locals.user.user_id;
 
   try {
-    const products = await getAllProducts({ user_id: userId });
+    const products = await getAllProducts({
+      user_id: userId,
+      sortBy: "updatedAt",
+      sortOrder: "DESC",
+    });
 
     if (!products) {
       res.status(404).send({ error: "Product not found" });
