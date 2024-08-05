@@ -56,6 +56,22 @@ const getAllProductsHandler = async (req, res) => {
   }
 };
 
+const getAllFilteredProductsHandler = async (req, res) => {
+  const userId = res.locals.user.user_id;
+
+  try {
+    const products = await getAllProducts({ user_id: userId });
+
+    if (!products) {
+      res.status(404).send({ error: "Product not found" });
+    }
+
+    res.status(200).send(products);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 const updateProductHandler = async (req, res) => {
   const userId = res.locals.user.user_id;
   const productId = req.params.productId;
@@ -109,6 +125,7 @@ const deleteProductHandler = async (req, res) => {
 module.exports = {
   createProductHandler,
   getAllProductsHandler,
+  getAllFilteredProductsHandler,
   getProductHandler,
   updateProductHandler,
   deleteProductHandler,

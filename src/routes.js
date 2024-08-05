@@ -8,6 +8,7 @@ const {
   updateProductHandler,
   deleteProductHandler,
   getAllProductsHandler,
+  getAllFilteredProductsHandler,
 } = require("./03-controllers/product.controller");
 const {
   createSessionHandler,
@@ -63,6 +64,7 @@ const routes = (app) => {
     createProductHandler
   );
   app.get("/api/products", requireUser, getAllProductsHandler);
+  app.post("/api/filter/products", requireUser, getAllFilteredProductsHandler);
   app.get(
     "/api/products/:productId",
     requireUser,
