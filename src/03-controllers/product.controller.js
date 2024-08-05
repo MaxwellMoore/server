@@ -58,9 +58,35 @@ const getAllProductsHandler = async (req, res) => {
 
 const getAllFilteredProductsHandler = async (req, res) => {
   const userId = res.locals.user.user_id;
+  const filters = req.body;
+  for (let key in filters) {
+    if (filters[key] === "") {
+      delete filters[key];
+    }
+  }
+  let statusArray = [];
+  for (let key in filters.status) {
+    if (filters.status[key] === true) {
+      statusArray.push(key);
+    }
+  }
+  if (statusArray.length === 0) {
+    delete filters.status;
+  } else {
+    filters.status = statusArray;
+  }
+  if (!filters.createdAtStart && filters.createdAtEnd) {
+    delete filters.createdAtEnd;
+  }
+  if (!filters.updatedAtStart && filters.updatedAtEnd) {
+    delete filters.updatedAtEnd;
+  }
+  if (filters.bookmarked === false) {
+    delete filters.bookmarked;
+  }
 
   try {
-    const products = await getAllProducts({ user_id: userId });
+    const products = await getAllProducts({ user_id: userId, ...filters });
 
     if (!products) {
       res.status(404).send({ error: "Product not found" });

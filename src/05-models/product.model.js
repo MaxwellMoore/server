@@ -19,6 +19,11 @@ const Product = database.define(
       },
       allowNull: false,
     },
+    bookmarked: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     title: {
       type: DataTypes.STRING,
       allowNull: true,

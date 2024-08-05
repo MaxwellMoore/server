@@ -34,6 +34,9 @@ const getProductSchema = Joi.object({
 
 const updateProductSchema = Joi.object({
   body: Joi.object({
+    bookmarked: Joi.boolean().required().messages({
+      "any.required": "Bookmarked is required",
+    }),
     title: Joi.string().required().messages({
       "any.required": "Title is required",
     }),
