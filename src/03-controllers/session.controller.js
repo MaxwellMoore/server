@@ -145,6 +145,9 @@ const deleteSessionHandler = async (req, res) => {
 
   await updateSessions({ session_id: sessionId }, { valid: false });
 
+  res.clearCookie("accessToken");
+  res.clearCookie("refreshToken");
+
   return res.status(200).send({
     accessToken: null,
     refreshToken: null,
