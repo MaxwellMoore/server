@@ -85,11 +85,9 @@ const googleOauthHandler = async (req, res) => {
 
     // Get id and accessToken with code
     const { id_token, access_token } = await getGoogleOAuthTokens({ code });
-    logger.info({ id_token, access_token });
 
     // Get user with tokens
     const googleUser = jwt.decode(id_token);
-    logger.info({ googleUser });
 
     if (!googleUser.email_verified) {
       return res.status(403).send("Google account is not verified");
@@ -97,7 +95,6 @@ const googleOauthHandler = async (req, res) => {
 
     // Get user
     const user = await getUser({ email: googleUser.email });
-    logger.info({ user });
 
     // Return if user does not exist
     if (!user) {
