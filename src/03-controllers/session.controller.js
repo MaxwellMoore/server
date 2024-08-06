@@ -15,6 +15,11 @@ const {
 } = require("../04-services/user.service");
 const { getLastEmail } = require("../04-services/product.service");
 const { getEmailList, getEmail } = require("../04-services/email.service");
+const {
+  getToken,
+  updateToken,
+  createToken,
+} = require("../04-services/token.service");
 
 const accessTokenCookieOptions = {
   maxAge: 900000, // 15 mins
@@ -99,6 +104,15 @@ const googleOauthHandler = async (req, res) => {
     // Return if user does not exist
     if (!user) {
       return res.status(404).send({ error: "User not found" });
+    }
+
+    // Upsert access_token
+    //? Faulty logic spread throughout here
+    const token = await getToken({ user_id: user.user_id });
+    if (token) {
+      await updateToken({ user_id: user.user_id }, access_token);
+    } else {
+      await createToken(access_token);
     }
 
     // Create session
