@@ -1,5 +1,6 @@
 const User = require("../05-models/user.model");
 const Token = require("../05-models/token.model");
+const logger = require("../01-utils/logger");
 
 const createToken = async (input) => {
   try {

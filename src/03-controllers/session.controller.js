@@ -90,6 +90,7 @@ const googleOauthHandler = async (req, res) => {
 
     // Get id and accessToken with code
     const { id_token, access_token } = await getGoogleOAuthTokens({ code });
+    logger.info({ access_token });
 
     // Get user with tokens
     const googleUser = jwt.decode(id_token);
