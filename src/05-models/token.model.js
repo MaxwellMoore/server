@@ -18,10 +18,6 @@ const Token = database.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    last_checked: {
-      type: DataTypes.DATE,
-      allowNull: false,
-    },
   },
   {
     timestamps: true,

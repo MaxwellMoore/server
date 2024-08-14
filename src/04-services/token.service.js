@@ -2,14 +2,20 @@ const User = require("../05-models/user.model");
 const Token = require("../05-models/token.model");
 const logger = require("../01-utils/logger");
 
-const createToken = async (input) => {
+const createToken = async (payload) => {
   try {
-    const token = new Token(input);
-    await token.save();
-    return token.dataValues;
+    return Token.create(payload);
   } catch (error) {
     logger.error(error);
   }
+
+  // try {
+  //   const token = new Token(input);
+  //   await token.save();
+  //   return token.dataValues;
+  // } catch (error) {
+  //   logger.error(error);
+  // }
 };
 
 const getToken = async (queryCondition) => {

@@ -57,20 +57,18 @@ const logger = require("../01-utils/logger");
 //   "nextPageToken": string,
 //   "resultSizeEstimate": integer
 // }
-const getEmailList = async (accessToken, maxResults) => {
+const getEmailList = async (accessToken) => {
   try {
-    const emailList = await axios.get(
-      "https://www.googleapis.com/gmail/v1/users/me/messages",
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-        params: {
-          maxResults: maxResults,
-          q: "", // You can use search queries here if needed
-        },
-      }
-    );
+    const query = "newer_than:2d";
+    const endpoint = "https://www.googleapis.com/gmail/v1/users/me/messages?";
+    const emailList = await axios.get(endpoint, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+      params: {
+        q: query,
+      },
+    });
     return emailList.data.messages;
   } catch (error) {
     logger.error({ error });

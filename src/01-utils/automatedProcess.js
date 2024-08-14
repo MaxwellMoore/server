@@ -1,3 +1,4 @@
+const { getEmailList, getEmail } = require("../04-services/email.service");
 const {
   getProduct,
   updateProduct,
@@ -7,12 +8,17 @@ const Token = require("../05-models/token.model");
 
 const autoProcess = async () => {
   try {
-    const data = await Token.findAll();
+    const tokens = await Token.findAll();
 
-    data.forEach((entry) => {
-      // Use entry.access_token to retrieve all emails within the time interval entry.last_checked to Date.now()
-      const emails = [];
-      emails.forEach(async (email) => {
+    tokens.forEach(async (entry) => {
+      // Use entry.access_token to retrieve all emails newer than two days
+      const accessToken = entry.dataValues.access_token;
+      const emailList = await getEmailList(accessToken);
+      emailList.forEach(async (email) => {
+        // Use email ID to retrieve email content
+        const emailId = email.id;
+        const emailContent = await getEmail(accessToken, emailId);
+
         // Process email content
         // const processedData = processEmail(email);
         // const appRelated = textClassification(processedData);

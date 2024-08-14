@@ -108,12 +108,14 @@ const googleOauthHandler = async (req, res) => {
     }
 
     // Upsert access_token
-    //? Faulty logic spread throughout here
     const token = await getToken({ user_id: user.user_id });
     if (token) {
-      await updateToken({ user_id: user.user_id }, access_token);
+      await updateToken(
+        { user_id: user.user_id },
+        { user_id: user.user_id, access_token: access_token }
+      );
     } else {
-      await createToken(access_token);
+      await createToken({ user_id: user.user_id, access_token: access_token });
     }
 
     // Create session
