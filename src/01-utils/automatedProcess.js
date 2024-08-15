@@ -4,6 +4,7 @@ const {
   updateProduct,
   createProduct,
 } = require("../04-services/product.service");
+const { getOAuthAccessToken } = require("../04-services/user.service");
 const Token = require("../05-models/token.model");
 
 const autoProcess = async () => {
@@ -11,13 +12,15 @@ const autoProcess = async () => {
     const tokens = await Token.findAll();
 
     tokens.forEach(async (entry) => {
-      // Use entry.access_token to retrieve all emails newer than two days
-      const accessToken = entry.dataValues.access_token;
-      const emailList = await getEmailList(accessToken);
+      const refresh_token = entry.dataValues.refresh_token;
+      const access_token = await getOAuthAccessToken({ refresh_token });
+
+      // Use access_token to retrieve all emails newer than two days
+      const emailList = await getEmailList(access_token);
       emailList.forEach(async (email) => {
         // Use email ID to retrieve email content
         const emailId = email.id;
-        const emailContent = await getEmail(accessToken, emailId);
+        const emailContent = await getEmail(access_token, emailId);
 
         // Process email content
         // const processedData = processEmail(email);

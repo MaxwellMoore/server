@@ -14,7 +14,7 @@ const Token = database.define(
       primaryKey: true,
       allowNull: false,
     },
-    access_token: {
+    refresh_token: {
       type: DataTypes.STRING,
       allowNull: false,
     },

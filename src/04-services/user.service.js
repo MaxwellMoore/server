@@ -62,6 +62,35 @@ const getGoogleOAuthTokens = async ({ code }) => {
   }
 };
 
+const getOAuthAccessToken = async ({ refresh_token }) => {
+  const url = "https://oauth2.googleapis.com/token";
+
+  const values = {
+    grant_type: "refresh_token",
+    refresh_token: refresh_token,
+    client_id: config.googleClientId,
+    client_secret: config.googleClientSecret,
+  };
+
+  try {
+    const res = await axios.post(url, qs.stringify(values), {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    });
+    return res.data.access_token;
+  } catch (error) {
+    if (error.response && error.response.data.error === "invalid_grant") {
+      logger.error("Error: Refresh token has expired or been revoked.");
+    } else {
+      logger.error(
+        "Failed to fetch a new Google OAuth access token:",
+        error.message
+      );
+    }
+  }
+};
+
 const validatePassword = async (payload) => {
   try {
     const user = await User.findOne({
@@ -89,5 +118,6 @@ module.exports = {
   createUser,
   getUser,
   getGoogleOAuthTokens,
+  getOAuthAccessToken,
   validatePassword,
 };

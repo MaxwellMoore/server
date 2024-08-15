@@ -89,8 +89,7 @@ const googleOauthHandler = async (req, res) => {
     const code = req.query.code;
 
     // Get id and accessToken with code
-    const { id_token, access_token } = await getGoogleOAuthTokens({ code });
-    logger.info({ access_token });
+    const { id_token, refresh_token } = await getGoogleOAuthTokens({ code });
 
     // Get user with tokens
     const googleUser = jwt.decode(id_token);
@@ -107,15 +106,21 @@ const googleOauthHandler = async (req, res) => {
       return res.status(404).send({ error: "User not found" });
     }
 
-    // Upsert access_token
+    // Upsert refresh_token
     const token = await getToken({ user_id: user.user_id });
     if (token) {
       await updateToken(
         { user_id: user.user_id },
-        { user_id: user.user_id, access_token: access_token }
+        {
+          user_id: user.user_id,
+          refresh_token: refresh_token,
+        }
       );
     } else {
-      await createToken({ user_id: user.user_id, access_token: access_token });
+      await createToken({
+        user_id: user.user_id,
+        refresh_token: refresh_token,
+      });
     }
 
     // Create session

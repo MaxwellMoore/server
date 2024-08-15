@@ -207,8 +207,10 @@ const collectEmailContent = (messageResponse) => {
 
 function processEmail(data) {
   return new Promise((resolve, reject) => {
-    const pythonExecutable = "../../venv/bin/python";
-    const pythonScript = "./python.service.py";
+    const pythonExecutable =
+      "/Users/xmazwellx/Downloads/project/server/venv/bin/python";
+    const pythonScript =
+      "/Users/xmazwellx/Downloads/project/server/src/04-services/python.service.py";
     const pythonProcess = spawn(pythonExecutable, [pythonScript]);
 
     pythonProcess.stdin.write(JSON.stringify(data));
