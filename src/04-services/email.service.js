@@ -120,7 +120,9 @@ const collectEmailContent = (messageResponse) => {
     if (part.mimeType === "text/plain") {
       decodedString = decodedString.concat(decodeBase64(part.body.data));
     } else if (part.mimeType === "text/html") {
-      decodedString = decodedString.concat(decodeBase64(part.body.data));
+      const htmlContent = decodeBase64(part.body.data);
+      const $ = cheerio.load(htmlContent);
+      decodedString += $("body").text().trim();
     } else if (part.parts) {
       processParts(part.parts);
     }
@@ -141,69 +143,6 @@ const collectEmailContent = (messageResponse) => {
 
   return decodedString;
 };
-
-// const extractEmailText = (messageResponse) => {
-//   let plainTextContent = "";
-
-//   const processParts = (parts) => {
-//     parts.forEach((part) => {
-//       if (part.mimeType === "text/plain") {
-//         plainTextContent += decodeBase64(part.body.data) + "\n\n";
-//       } else if (part.mimeType === "text/html") {
-//         const htmlContent = decodeBase64(part.body.data);
-//         const $ = cheerio.load(htmlContent);
-//         plainTextContent += $("body").text().trim() + "\n\n";
-//       } else if (part.parts) {
-//         // Recursive call for nested parts
-//         processParts(part.parts);
-//       }
-//     });
-//   };
-
-//   let payload = messageResponse.data.payload;
-//   if (payload.parts && payload.parts.length > 0) {
-//     processParts(payload.parts);
-//   } else {
-//     // Handle single part payload
-//     if (payload.mimeType === "text/plain") {
-//       plainTextContent = decodeBase64(payload.body.data);
-//     } else if (payload.mimeType === "text/html") {
-//       const htmlContent = decodeBase64(payload.body.data);
-//       const $ = cheerio.load(htmlContent);
-//       plainTextContent = $("body").text().trim();
-//     }
-//   }
-
-//   return plainTextContent.trim();
-
-//   let plainTextContent = "";
-
-//   let payload = messageResponse.data.payload;
-//   if (payload.parts && payload.parts.length > 0) {
-//     // Iterate through each part to find text/plain or text/html content
-//     payload.parts.forEach((part) => {
-//       if (part.mimeType === "text/plain") {
-//         plainTextContent += decodeBase64(part.body.data) + "\n\n";
-//       } else if (part.mimeType === "text/html") {
-//         const htmlContent = decodeBase64(part.body.data);
-//         const $ = cheerio.load(htmlContent);
-//         const textFromHtml = $("body").text().trim();
-//         plainTextContent += textFromHtml + "\n\n";
-//       }
-//     });
-//   } else {
-//     // If there are no parts, assume the whole payload is the message body
-//     if (payload.mimeType === "text/plain") {
-//       plainTextContent = decodeBase64(payload.body.data);
-//     } else if (payload.mimeType === "text/html") {
-//       const htmlContent = decodeBase64(payload.body.data);
-//       const $ = cheerio.load(htmlContent);
-//       plainTextContent = $("body").text().trim();
-//     }
-//   }
-
-//   return plainTextContent.trim();
-// };
 
 function processEmail(data) {
   return new Promise((resolve, reject) => {
