@@ -4,6 +4,7 @@ const cheerio = require("cheerio");
 const { spawn } = require("child_process");
 const { decodeBase64 } = require("../01-utils/decode");
 const logger = require("../01-utils/logger");
+const { P } = require("pino");
 
 //! Message
 // {
@@ -102,82 +103,113 @@ const getEmail = async (accessToken, messageId) => {
       }
     );
 
-    const messageContent = extractEmailText(messageResponse);
+    const messageContent = collectEmailContent(messageResponse);
     return messageContent;
+
+    // const messageContent = extractEmailText(messageResponse);
+    // return messageContent;
   } catch (error) {
     logger.error({ error });
   }
 };
 
-const extractEmailText = (messageResponse) => {
-  let plainTextContent = "";
+const collectEmailContent = (messageResponse) => {
+  let decodedString = "";
 
-  const processParts = (parts) => {
+  const decodePart = (part) => {
+    if (part.mimeType === "text/plain") {
+      decodedString = decodedString.concat(decodeBase64(part.body.data));
+    } else if (part.mimeType === "text/html") {
+      decodedString = decodedString.concat(decodeBase64(part.body.data));
+    } else if (part.parts) {
+      processParts(part.parts);
+    }
+  };
+
+  const processMultiParts = (parts) => {
     parts.forEach((part) => {
-      if (part.mimeType === "text/plain") {
-        plainTextContent += decodeBase64(part.body.data) + "\n\n";
-      } else if (part.mimeType === "text/html") {
-        const htmlContent = decodeBase64(part.body.data);
-        const $ = cheerio.load(htmlContent);
-        plainTextContent += $("body").text().trim() + "\n\n";
-      } else if (part.parts) {
-        // Recursive call for nested parts
-        processParts(part.parts);
-      }
+      decodePart(part);
     });
   };
 
   let payload = messageResponse.data.payload;
   if (payload.parts && payload.parts.length > 0) {
-    processParts(payload.parts);
+    processMultiParts(payload.parts);
   } else {
-    // Handle single part payload
-    if (payload.mimeType === "text/plain") {
-      plainTextContent = decodeBase64(payload.body.data);
-    } else if (payload.mimeType === "text/html") {
-      const htmlContent = decodeBase64(payload.body.data);
-      const $ = cheerio.load(htmlContent);
-      plainTextContent = $("body").text().trim();
-    }
+    decodePart(payload.body.data);
   }
 
-  return plainTextContent.trim();
-
-  //   let plainTextContent = "";
-
-  //   let payload = messageResponse.data.payload;
-  //   if (payload.parts && payload.parts.length > 0) {
-  //     // Iterate through each part to find text/plain or text/html content
-  //     payload.parts.forEach((part) => {
-  //       if (part.mimeType === "text/plain") {
-  //         plainTextContent += decodeBase64(part.body.data) + "\n\n";
-  //       } else if (part.mimeType === "text/html") {
-  //         const htmlContent = decodeBase64(part.body.data);
-  //         const $ = cheerio.load(htmlContent);
-  //         const textFromHtml = $("body").text().trim();
-  //         plainTextContent += textFromHtml + "\n\n";
-  //       }
-  //     });
-  //   } else {
-  //     // If there are no parts, assume the whole payload is the message body
-  //     if (payload.mimeType === "text/plain") {
-  //       plainTextContent = decodeBase64(payload.body.data);
-  //     } else if (payload.mimeType === "text/html") {
-  //       const htmlContent = decodeBase64(payload.body.data);
-  //       const $ = cheerio.load(htmlContent);
-  //       plainTextContent = $("body").text().trim();
-  //     }
-  //   }
-
-  //   return plainTextContent.trim();
+  return decodedString;
 };
+
+// const extractEmailText = (messageResponse) => {
+//   let plainTextContent = "";
+
+//   const processParts = (parts) => {
+//     parts.forEach((part) => {
+//       if (part.mimeType === "text/plain") {
+//         plainTextContent += decodeBase64(part.body.data) + "\n\n";
+//       } else if (part.mimeType === "text/html") {
+//         const htmlContent = decodeBase64(part.body.data);
+//         const $ = cheerio.load(htmlContent);
+//         plainTextContent += $("body").text().trim() + "\n\n";
+//       } else if (part.parts) {
+//         // Recursive call for nested parts
+//         processParts(part.parts);
+//       }
+//     });
+//   };
+
+//   let payload = messageResponse.data.payload;
+//   if (payload.parts && payload.parts.length > 0) {
+//     processParts(payload.parts);
+//   } else {
+//     // Handle single part payload
+//     if (payload.mimeType === "text/plain") {
+//       plainTextContent = decodeBase64(payload.body.data);
+//     } else if (payload.mimeType === "text/html") {
+//       const htmlContent = decodeBase64(payload.body.data);
+//       const $ = cheerio.load(htmlContent);
+//       plainTextContent = $("body").text().trim();
+//     }
+//   }
+
+//   return plainTextContent.trim();
+
+//   let plainTextContent = "";
+
+//   let payload = messageResponse.data.payload;
+//   if (payload.parts && payload.parts.length > 0) {
+//     // Iterate through each part to find text/plain or text/html content
+//     payload.parts.forEach((part) => {
+//       if (part.mimeType === "text/plain") {
+//         plainTextContent += decodeBase64(part.body.data) + "\n\n";
+//       } else if (part.mimeType === "text/html") {
+//         const htmlContent = decodeBase64(part.body.data);
+//         const $ = cheerio.load(htmlContent);
+//         const textFromHtml = $("body").text().trim();
+//         plainTextContent += textFromHtml + "\n\n";
+//       }
+//     });
+//   } else {
+//     // If there are no parts, assume the whole payload is the message body
+//     if (payload.mimeType === "text/plain") {
+//       plainTextContent = decodeBase64(payload.body.data);
+//     } else if (payload.mimeType === "text/html") {
+//       const htmlContent = decodeBase64(payload.body.data);
+//       const $ = cheerio.load(htmlContent);
+//       plainTextContent = $("body").text().trim();
+//     }
+//   }
+
+//   return plainTextContent.trim();
+// };
 
 function processEmail(data) {
   return new Promise((resolve, reject) => {
-    const pythonExecutable = "../venv/bin/python";
-    const pythonProcess = spawn(pythonExecutable, [
-      "./src/04-services/python.service.py",
-    ]);
+    const pythonExecutable = "../../venv/bin/python";
+    const pythonScript = "./python.service.py";
+    const pythonProcess = spawn(pythonExecutable, [pythonScript]);
 
     pythonProcess.stdin.write(JSON.stringify(data));
     pythonProcess.stdin.end();
@@ -211,6 +243,5 @@ function processEmail(data) {
 module.exports = {
   getEmailList,
   getEmail,
-  extractEmailText,
   processEmail,
 };

@@ -1,7 +1,7 @@
 import sys
 import json
-import spacy
-nlp = spacy.load("en_core_web_sm")
+# import spacy
+# nlp = spacy.load("en_core_web_sm")
 
 def your_python_function(data):
     # Process the data
